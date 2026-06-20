@@ -85,7 +85,7 @@ CREATE TABLE matriculas (
     fecha_matricula DATE NOT NULL DEFAULT CURRENT_DATE,
     estado VARCHAR(15) NOT NULL DEFAULT 'ACTIVA',
     CONSTRAINT uq_matriculas_estudiante_ano UNIQUE (id_estudiante, id_ano_lectivo),
-    CONSTRAINT chk_matriculas_tipo CHECK (tipo_inscripcion IN ('V', 'N', 'T')),
+    CONSTRAINT chk_matriculas_tipo CHECK (tipo_inscripcion IN ('V', 'N', 'T')), -- V: Veterano, N: Nuevo, T: Transferencia
     CONSTRAINT chk_matriculas_estado CHECK (estado IN ('ACTIVA', 'RETIRADA', 'TRASLADADA'))
 );
 
