@@ -525,8 +525,8 @@ AS $$
 $$;
 
 -- Ejemplo
--- Registrar o actualizar la nota 8.50 para la inscripción con id_inscripcion = 15
---  en la evaluación con id_evaluacion = 5
+-- Registrar o actualizar la nota 8.50 para la inscripción con id_inscripcion = 15 (estudiante de 1° grado sección A)
+--  en la evaluación con id_evaluacion = 5 (Proyecto del Trimestre, Trimestre 2 de Idioma Extranjero Inglés 1°)
 -- CALL registrar_nota(15, 5, 8.50);
 
 
