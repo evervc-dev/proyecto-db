@@ -130,7 +130,7 @@ CREATE TABLE horarios (
     dia_semana INT NOT NULL,
     hora_inicio TIME NOT NULL,
     hora_fin TIME NOT NULL,
-    aula  VARCHAR(30) NOT NULL,
+    aula VARCHAR(30) NOT NULL,
     CONSTRAINT chk_horarios_dia CHECK (dia_semana BETWEEN 1 AND 7),
     CONSTRAINT chk_horarios_horas CHECK (hora_fin > hora_inicio)
 );
@@ -144,7 +144,7 @@ CREATE TABLE inscripciones_asignaturas (
     promedio_t2 NUMERIC(4,2) DEFAULT NULL,
     promedio_t3 NUMERIC(4,2) DEFAULT NULL,
     promedio_final NUMERIC(4,2) DEFAULT NULL,
-    estado   VARCHAR(15) NOT NULL DEFAULT 'activa',
+    estado VARCHAR(15) NOT NULL DEFAULT 'activa',
     CONSTRAINT uq_insc_mat_asig UNIQUE (id_matricula, id_asignacion_docente),
     CONSTRAINT chk_insc_promedio_t1 CHECK (promedio_t1 IS NULL OR (promedio_t1 >= 0 AND promedio_t1 <= 10)),
     CONSTRAINT chk_insc_promedio_t2 CHECK (promedio_t2 IS NULL OR (promedio_t2 >= 0 AND promedio_t2 <= 10)),
@@ -196,7 +196,7 @@ CREATE TABLE alertas_academicas (
     id_alerta SERIAL PRIMARY KEY,
     id_inscripcion INT NOT NULL REFERENCES inscripciones_asignaturas(id_inscripcion) ON DELETE CASCADE,
     tipo_alerta VARCHAR(30) NOT NULL,
-    fecha_alerta TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_alerta TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     estado_alerta VARCHAR(15) NOT NULL DEFAULT 'activa',
     descripcion TEXT,
     CONSTRAINT chk_alertas_tipo CHECK (tipo_alerta IN ('promedio_bajo', 'inasistencia_excesiva')),

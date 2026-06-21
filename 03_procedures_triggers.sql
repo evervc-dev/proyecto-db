@@ -31,8 +31,8 @@ FOR EACH ROW
 EXECUTE FUNCTION fn_validar_peso_evaluaciones();
 
 
--- Calcula de forma automatizada los promedios ponderados por trimestre y el promedio 
--- final y genera la alerta si cae por debajo de 6.00
+-- Calcula de forma automatizada los promedios ponderados por trimestre y el promedio final
+-- y genera la alerta si cae por debajo de 6.00
 CREATE OR REPLACE FUNCTION fn_actualizar_promedio()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -84,6 +84,7 @@ AS $$
                 COALESCE(promedio_t1, 0) * CASE WHEN promedio_t1 IS NOT NULL THEN 1 ELSE 0 END +
                 COALESCE(promedio_t2, 0) * CASE WHEN promedio_t2 IS NOT NULL THEN 1 ELSE 0 END +
                 COALESCE(promedio_t3, 0) * CASE WHEN promedio_t3 IS NOT NULL THEN 1 ELSE 0 END
+                -- Suma = 14.67
             ) /
             NULLIF(
                 (
@@ -94,20 +95,20 @@ AS $$
                     CASE WHEN promedio_t3 IS NOT NULL THEN 1 ELSE 0 END
                 ), 
                 0
-            ), 
+            ),
             2
         )
         WHERE id_inscripcion = v_id_inscripcion;
 
         -- Si el promedio final es menor a 6.00 verifica si ya existe una alerta activa de bajo rendimiento para esta inscripción
-        -- Si no existe, crea una nueva alerta indicando el promedio y el trimestre que está por debajo del límite de riesgo
         IF v_promedio IS NOT NULL AND v_promedio < 6.00 THEN
             SELECT COUNT(*) INTO v_alerta_existe
             FROM alertas_academicas
             WHERE id_inscripcion = v_id_inscripcion
             AND tipo_alerta = 'promedio_bajo'
             AND estado_alerta = 'activa';
-
+            
+            -- Si no existe, crea una nueva alerta indicando el promedio y el trimestre que está por debajo del límite de riesgo
             IF v_alerta_existe = 0 THEN
                 INSERT INTO alertas_academicas (id_inscripcion, tipo_alerta, descripcion)
                 VALUES (
@@ -115,6 +116,13 @@ AS $$
                     'promedio_bajo',
                     'El estudiante tiene un promedio de ' || v_promedio || ' en el Trimestre ' || v_trimestre || ' (límite mínimo de riesgo: 6.00).'
                 );
+            -- Si ya existe una alerta activa, solo se actualiza la descripción para reflejar el nuevo promedio y trimestre
+            ELSE
+                UPDATE alertas_academicas
+                SET descripcion = 'El estudiante tiene un promedio de ' || v_promedio || ' en el Trimestre ' || v_trimestre || ' (límite mínimo de riesgo: 6.00).'
+                WHERE id_inscripcion = v_id_inscripcion
+                AND tipo_alerta = 'promedio_bajo'
+                AND estado_alerta = 'activa';
             END IF;
         END IF;
 
@@ -281,7 +289,7 @@ AS $$
         WHERE ad.id_personal = NEW.id_personal
         AND ad.id_ano_lectivo = NEW.id_ano_lectivo
         AND ad.id_materia != NEW.id_materia
-        LIMIT 1; -- BAsta con encontrar una asignación para lanzar la excepción
+        LIMIT 1; -- Basta con encontrar una asignación para lanzar la excepción
         
         -- Si se encontró alguna asignación del docente en otra materia del mismo año, se lanza una excepción
         IF FOUND THEN
@@ -509,8 +517,8 @@ FOR EACH ROW EXECUTE FUNCTION fn_respaldo_inscripcion();
 CREATE OR REPLACE PROCEDURE registrar_nota(
     -- Parámetros:
     p_id_inscripcion INT, -- ID de la inscripción del estudiante en la asignatura
-    p_id_evaluacion  INT, -- ID de la evaluación (por ejemplo, examen, tarea, etc.)
-    p_nota           NUMERIC(4,2)
+    p_id_evaluacion INT, -- ID de la evaluación (por ejemplo, examen, tarea, etc.)
+    p_nota NUMERIC(4,2)
 )
 LANGUAGE plpgsql
 AS $$
@@ -534,8 +542,8 @@ $$;
 -- del docente en la fecha indicada (caso en que todos los estudiantes están presentes)
 CREATE OR REPLACE PROCEDURE registrar_asistencia_seccion(
     p_id_asignacion_docente INT, -- ID de la asignación docente para identificar la asignatura y sección
-    p_fecha                 DATE DEFAULT CURRENT_DATE, -- Fecha para la cual se registrará la asistencia, por defecto es la fecha actual
-    p_tipo_default          VARCHAR(15) DEFAULT 'presente' -- Tipo de asistencia a registrar para todos los estudiantes, por defecto es "presente"
+    p_fecha DATE DEFAULT CURRENT_DATE, -- Fecha para la cual se registrará la asistencia, por defecto es la fecha actual
+    p_tipo_default VARCHAR(15) DEFAULT 'presente' -- Tipo de asistencia a registrar para todos los estudiantes, por defecto es "presente"
 )
 LANGUAGE plpgsql
 AS $$
