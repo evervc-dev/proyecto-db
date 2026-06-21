@@ -37,8 +37,8 @@ WHERE (activo = TRUE);
 CREATE TABLE grados (
     id_grado SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
-    nivel VARCHAR(20)  NOT NULL,
-    orden INT  NOT NULL,
+    nivel VARCHAR(20) NOT NULL,
+    orden INT NOT NULL,
     CONSTRAINT uq_grados_nombre UNIQUE (nombre),
     CONSTRAINT chk_grados_nivel CHECK (nivel IN ('parvularia', 'basica', 'media')),
     CONSTRAINT chk_grados_orden CHECK (orden >= 0)

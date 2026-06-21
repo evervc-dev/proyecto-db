@@ -609,6 +609,7 @@ AS $$
         JOIN anos_lectivos al ON al.id_ano_lectivo = mt.id_ano_lectivo
         WHERE e.nie = p_nie_estudiante
         AND m.nombre = p_nombre_materia;
+    END;
 $$;
 
 -- Ejemplo
