@@ -246,6 +246,17 @@ AS $$
         FROM inscripciones_asignaturas
         WHERE id_inscripcion = NEW.id_inscripcion;
 
+        -- Valida que la fecha coincida con el año lectivo de la asignación docente
+        IF NOT EXISTS (
+            SELECT 1 FROM anos_lectivos al
+            JOIN asignaciones_docentes ad ON ad.id_ano_lectivo = al.id_ano_lectivo
+            WHERE ad.id_asignacion_docente = v_id_asignacion_docente
+            AND NEW.fecha BETWEEN al.fecha_inicio AND al.fecha_fin
+        ) THEN
+            RAISE EXCEPTION 'Error de Asistencia: La fecha % no corresponde al año lectivo de la asignatura.',
+                NEW.fecha;
+        END IF;
+
         -- EXTRACT(ISODOW FROM fecha) devuelve el número del día de la semana
         -- ISODOW se usa para que la semana empiece en lunes y termine en domingo (1 para lunes, 2 para martes, ..., 7 para domingo)
         v_dia_semana := EXTRACT(ISODOW FROM NEW.fecha);
